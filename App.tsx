@@ -56,8 +56,8 @@ export default function App() {
   const [ansicht, setAnsicht] = useState<Ansicht>('start');
   const [waehlenFeld, setWaehlenFeld] = useState<FeldSchluessel>();
   const [rohtextZeigen, setRohtextZeigen] = useState(false);
-  const [fotoMitnehmen, setFotoMitnehmen] = useState(true);
-  const [inGalerie, setInGalerie] = useState(false);
+  const [fotoMitnehmen, setFotoMitnehmen] = useState(false);
+  const [inGalerie, setInGalerie] = useState(true);
   const scroll = useRef<ScrollViewInstance>(null);
 
   // Karten nacheinander auswerten, während schon geprüft wird

@@ -34,7 +34,7 @@ Je ein Android-Handy (Chrome) und, wenn zur Hand, ein iPhone (Safari).
 | A5 | Download geht. „Öffnen mit“: CamCard, ChatGPT, Dateimanager, Kontakte (Google), Kontakte (Samsung), Termux. **Keine Outlook-App** |
 | A6 | **geht.** Kontakte (Samsung) > „Importieren von Kontakten in“ bietet „Outlook (Standard)“ an. Ziel erreicht: Download antippen, Kontakte, Importieren |
 | A9 | offen: Kontakt am PC in Outlook prüfen, Umlaute |
-| A10 | Profilbild kommt an. Karte passt in den Kreis, ist als Profilbild aber nicht lesbar: Outlook zeigt es stark verkleinert und verpixelt, Samsung Kontakte vergrößert und schneidet selbst zu. Ein Profilbild ist ein Vorschaubild, die ganze Karte passt da nicht sinnvoll hinein |
+| A10 | Profilbild kommt an. Karte passt in den Kreis, ist als Profilbild aber nicht lesbar: Outlook zeigt es stark verkleinert und verpixelt, Samsung Kontakte vergrößert und schneidet selbst zu. Ein Profilbild ist ein Vorschaubild, die ganze Karte passt da nicht sinnvoll hinein. Entscheidung Henning: kein Profilbild, Haken steht auf aus; die Karte geht über den Galerie-Haken (jetzt an) |
 | A11 | geht (zweimal dieselbe Karte als Stapel) |
 | A12 | geht, beide Fotos geladen, keine Rückfrage |
 | A13 | offen: Bildausschnitte neben den Feldern und Wählen auf der Karte am echten Foto |

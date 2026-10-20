@@ -30,9 +30,10 @@ Erster Gerätetest: [docs/TESTPLAN-PWA.md](docs/TESTPLAN-PWA.md) (Android-App: [
    - mehrere: je Karte „Geprüft, nächste Karte“, am Ende **alle in einer Datei**; Samsung
      Kontakte importiert sie in einem Rutsch. Einzelne Karten können auch sofort gespeichert
      oder übersprungen werden
-   - Haken **Kartenbild als Profilbild**: die ganze Karte passt in den runden Zuschnitt
-   - Haken **Kartenfoto in der Galerie ablegen**: lädt das Foto in den Ordner Download, den
-     die Galerie mit anzeigt
+   - Haken **Kartenfoto in der Galerie ablegen** (an): lädt das Foto in den Ordner Download,
+     den die Galerie mit anzeigt. So bleibt die Karte lesbar
+   - Haken **Kartenbild als Profilbild** (aus): als Profilbild ist die Karte nicht lesbar,
+     Outlook verkleinert Kontaktfotos stark (Gerätetest 20.10.2026)
    - Weiter: Download antippen, Kontakte, ins Outlook-Konto importieren
 
 Kamera, Texterkennung und QR laufen im Browser auf dem Handy. Die nötigen Dateien
