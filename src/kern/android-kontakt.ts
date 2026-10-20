@@ -64,17 +64,3 @@ export function insertExtras(k: Kontakt): Record<string, string | number | boole
   e.finishActivityOnSaveCompleted = true;
   return e;
 }
-
-/**
- * Derselbe Intent als `intent:`-Adresse für Chrome auf Android (Web-App). Chrome startet
- * damit nur Apps, die Aufrufe aus dem Browser zulassen; ob der Kontakt-Editor dazugehört,
- * ist ungeprüft (Testplan).
- */
-export function kontaktEditorIntentUrl(k: Kontakt): string {
-  const teile = [`action=${ACTION_INSERT}`, `type=${KONTAKT_MIME}`];
-  for (const [schluessel, wert] of Object.entries(insertExtras(k))) {
-    const art = typeof wert === 'number' ? 'i' : typeof wert === 'boolean' ? 'B' : 'S';
-    teile.push(`${art}.${schluessel}=${encodeURIComponent(String(wert))}`);
-  }
-  return `intent:#Intent;${teile.join(';')};end`;
-}

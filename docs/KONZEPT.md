@@ -26,8 +26,12 @@ Stand 20.10.2026. Entschieden mit Henning im Gespräch.
 | Weg | Wie | Bewertung |
 |---|---|---|
 | **vCard herunterladen** (Hauptknopf) | Datei wird erzeugt und geladen | iPhone: Safari zeigt die Kontaktvorschau, „Neuen Kontakt erstellen“, landet im Standardkonto (in iOS auf Exchange stellen, dann in Outlook). Android: Chrome lädt die Datei, „Öffnen“, App wählen. Welche Apps Android anbietet (Kontakte, Outlook?), zeigt der Test |
-| Teilen | Web Share API mit der vCard als Datei | erscheint nur, wenn der Browser das Teilen dieser Datei erlaubt. Ob Chrome `.vcf` teilen lässt, ist ungeprüft |
-| Kontakt-Editor (Test), nur Android | `intent:`-Adresse mit denselben Feldern wie in der App | wäre der Ein-Tipp-Weg wie in der App. Chrome startet über `intent:` aber nur Apps, die Aufrufe aus dem Browser erlauben; ob der Kontakt-Editor dazugehört, ist ungeprüft. Geht es nicht, fliegt der Knopf raus |
+| (entfernt) Teilen | Web Share API mit der vCard als Datei | Gerätetest 20.10.2026 (Android, Edge): ging nicht |
+| (entfernt) Kontakt-Editor | `intent:`-Adresse mit denselben Feldern wie in der App | Gerätetest 20.10.2026 (Android, Edge): ging nicht. Chromium-Browser starten über `intent:` nur Apps, die Aufrufe aus dem Browser erlauben |
+
+Gerätetest 20.10.2026 (Android, Edge): Download geht, „Öffnen mit“ bietet Kontakte (Google
+und Samsung) an, **Outlook nicht**. In Outlook kommt der Kontakt also nur über die
+Kontakte-App, wenn dort das Exchange-/Outlook-Konto als Speicherort wählbar ist.
 
 ### Android-App (ruht)
 

@@ -25,9 +25,8 @@ Erster Gerätetest: [docs/TESTPLAN-PWA.md](docs/TESTPLAN-PWA.md) (Android-App: [
 4. Speichern:
    - **Als Kontakt speichern (vCard)**: iPhone zeigt sofort die Kontaktvorschau,
      „Neuen Kontakt erstellen“. Android lädt die Datei, Tipp auf „Öffnen“, App wählen
-   - **Teilen …** (wenn der Browser Dateien teilen kann): Teilen-Menü des Telefons
-   - **Kontakt-Editor öffnen (Test)**, nur Android: Versuch, den Kontakt-Editor wie in der
-     App direkt zu öffnen. Ob Chrome das zulässt, ist ungeprüft
+   - Teilen-Menü und direkter Aufruf des Kontakt-Editors gingen im Gerätetest nicht
+     (20.10.2026) und sind entfernt
 
 Kamera, Texterkennung und QR laufen im Browser auf dem Handy. Die nötigen Dateien
 (Texterkennung, QR) liefert der eigene Server mit aus. Der Service Worker hält sie im

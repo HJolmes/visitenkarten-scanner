@@ -26,6 +26,16 @@ Je ein Android-Handy (Chrome) und, wenn zur Hand, ein iPhone (Safari).
 | I3 | **Als Kontakt speichern (vCard)** | Kontaktvorschau, „Neuen Kontakt erstellen“ | |
 | I4 | Einstellungen > Kontakte > Standardaccount auf Exchange, dann I3 | Kontakt erscheint in Outlook | |
 
+## Ergebnisse 20.10.2026 (Android, Microsoft Edge)
+
+| Nr | Ergebnis |
+|---|---|
+| A2 | echte Karte: alles richtig bis auf den Namen (Logo statt Person, weil Sammeladresse firma@firma.de). Regel korrigiert, danach richtig |
+| A5 | Download geht. „Öffnen mit“: CamCard, ChatGPT, Dateimanager, Kontakte (Google), Kontakte (Samsung), Termux. **Keine Outlook-App** |
+| A6 | offen: Bietet die Kontakte-App beim Speichern das Outlook-/Exchange-Konto an? |
+| A7 | geht nicht, Knopf entfernt |
+| A8 | geht nicht, Knopf entfernt |
+
 ## Auswerten
 
 - A6 oder A8 bringen den Kontakt mit einem bis zwei Tipps ins Outlook-Konto: **Web-App reicht**
