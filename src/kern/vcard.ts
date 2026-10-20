@@ -52,6 +52,7 @@ export function erzeugeVCard(k: Kontakt): string {
   if (k.web) z.push(`URL;TYPE=WORK:${k.web.startsWith('http') ? k.web : 'https://' + k.web}`);
   const notiz = [k.anrede ? `Anrede: ${k.anrede}` : '', k.notiz].filter(Boolean).join('\n');
   if (notiz) z.push(`NOTE:${esc(notiz)}`);
+  if (k.foto) z.push(`PHOTO;ENCODING=b;TYPE=JPEG:${k.foto}`);
   z.push('END:VCARD');
   return z.map(falten).join(CRLF) + CRLF;
 }

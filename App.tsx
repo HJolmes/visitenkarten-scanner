@@ -15,6 +15,7 @@ import {
   View,
 } from 'react-native';
 import { Kontakt, Telefonart, leererKontakt } from './src/kern/kontakt';
+import { profilbildAus } from './src/plattform/profilbild';
 import { speicherAktionen } from './src/plattform/speichern';
 import { bildAuswerten } from './src/verarbeiten';
 
@@ -45,6 +46,8 @@ export default function App() {
   const [kontakt, setKontakt] = useState<Kontakt>();
   const [laeuft, setLaeuft] = useState(false);
   const [rohtextZeigen, setRohtextZeigen] = useState(false);
+  const [foto, setFoto] = useState<string>();
+  const [fotoMitnehmen, setFotoMitnehmen] = useState(true);
 
   async function bildHolen(quelle: 'kamera' | 'galerie') {
     const optionen: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], allowsEditing: true, quality: 1 };
@@ -65,6 +68,7 @@ export default function App() {
     setLaeuft(true);
     try {
       setKontakt(await bildAuswerten(uri));
+      setFoto(await profilbildAus(uri).catch(() => undefined));
     } catch (e) {
       Alert.alert('Erkennung fehlgeschlagen', String(e));
       setKontakt({ ...leererKontakt(), quelle: 'hand' });
@@ -80,7 +84,7 @@ export default function App() {
   async function ausfuehren(aktion: (k: Kontakt) => Promise<void>) {
     if (!kontakt) return;
     try {
-      await aktion(bereinigt(kontakt));
+      await aktion({ ...bereinigt(kontakt), foto: fotoMitnehmen ? foto : undefined });
     } catch (e) {
       Alert.alert('Speichern fehlgeschlagen', String(e));
     }
@@ -88,6 +92,7 @@ export default function App() {
 
   function neu() {
     setBild(undefined);
+    setFoto(undefined);
     setKontakt(undefined);
     setRohtextZeigen(false);
   }
@@ -163,6 +168,13 @@ export default function App() {
 
             <Eingabe label="Notiz" wert={kontakt.notiz} onChange={(v) => setze('notiz', v)} mehrzeilig />
 
+            {foto && (
+              <Pressable style={s.zeile} onPress={() => setFotoMitnehmen((x) => !x)}>
+                <View style={[s.haken, fotoMitnehmen && s.hakenAn]}>{fotoMitnehmen && <Text style={s.hakenText}>✓</Text>}</View>
+                <Text style={s.hakenLabel}>Kartenbild als Profilbild speichern</Text>
+              </Pressable>
+            )}
+
             <View style={s.aktionen}>
               {AKTIONEN.map((a) => (
                 <Knopf key={a.text} text={a.text} onPress={() => ausfuehren(a.ausfuehren)} zweit={!a.haupt} />
@@ -227,6 +239,10 @@ const s = StyleSheet.create({
   art: { borderWidth: 1, borderColor: FARBE, borderRadius: 6, paddingHorizontal: 10, paddingVertical: 10, minWidth: 64 },
   artText: { color: FARBE, textAlign: 'center' },
   link: { color: FARBE, paddingVertical: 8 },
+  haken: { width: 24, height: 24, borderWidth: 2, borderColor: FARBE, borderRadius: 4, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
+  hakenAn: { backgroundColor: FARBE },
+  hakenText: { color: '#fff', fontWeight: '700' },
+  hakenLabel: { flex: 1, fontSize: 16, color: '#222', marginTop: 9 },
   aktionen: { gap: 10, marginTop: 16, marginBottom: 8 },
   knopf: { backgroundColor: FARBE, borderRadius: 8, paddingVertical: 14, paddingHorizontal: 16 },
   knopfZweit: { backgroundColor: '#fff', borderWidth: 1, borderColor: FARBE },

@@ -30,6 +30,8 @@ export interface Kontakt {
   quelle: 'qr' | 'ocr' | 'hand';
   /** Der erkannte Rohtext, bleibt zur Kontrolle erhalten */
   rohtext: string;
+  /** Profilbild als JPEG in Base64 (ohne "data:"-Vorsatz), z. B. das Foto der Karte */
+  foto?: string;
 }
 
 export function leererKontakt(): Kontakt {

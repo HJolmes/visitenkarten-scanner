@@ -21,7 +21,8 @@ Erster Gerätetest: [docs/TESTPLAN-PWA.md](docs/TESTPLAN-PWA.md) (Android-App: [
 1. **Karte fotografieren** (öffnet die Kamera) oder Bild auswählen
 2. QR-Code mit vCard wird zuerst gelesen. Sonst Texterkennung (tesseract.js), danach
    ordnen feste Regeln die Felder zu (`src/kern/parser.ts`)
-3. Felder prüfen und korrigieren
+3. Felder prüfen und korrigieren. Haken „Kartenbild als Profilbild speichern“ (an): Das
+   Foto der Karte geht als Profilbild in die vCard (quadratisch, 360 px, rund 10 KB)
 4. Speichern:
    - **Als Kontakt speichern (vCard)**: iPhone zeigt sofort die Kontaktvorschau,
      „Neuen Kontakt erstellen“. Android lädt die Datei, Tipp auf „Öffnen“, App wählen

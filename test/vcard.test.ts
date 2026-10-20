@@ -67,6 +67,15 @@ describe('erzeugeVCard', () => {
     expect(zurueck.telefone.map((t) => t.art)).toEqual(['arbeit', 'mobil', 'fax']);
   });
 
+  it('Profilbild als PHOTO, gefaltet', () => {
+    const foto = 'A'.repeat(300);
+    const v = erzeugeVCard({ ...beispiel(), foto });
+    const entfaltet = v.replace(/\r\n /g, '');
+    expect(entfaltet).toContain(`PHOTO;ENCODING=b;TYPE=JPEG:${foto}\r\n`);
+    for (const zeile of v.split('\r\n')) expect(zeile.length).toBeLessThanOrEqual(75);
+    expect(erzeugeVCard(beispiel())).not.toContain('PHOTO');
+  });
+
   it('Dateiname ohne Sonderzeichen', () => {
     expect(dateinameFuer(beispiel())).toBe('Beispiel_Erika.vcf');
   });

@@ -34,6 +34,7 @@ Je ein Android-Handy (Chrome) und, wenn zur Hand, ein iPhone (Safari).
 | A5 | Download geht. „Öffnen mit“: CamCard, ChatGPT, Dateimanager, Kontakte (Google), Kontakte (Samsung), Termux. **Keine Outlook-App** |
 | A6 | **geht.** Kontakte (Samsung) > „Importieren von Kontakten in“ bietet „Outlook (Standard)“ an. Ziel erreicht: Download antippen, Kontakte, Importieren |
 | A9 | offen: Kontakt am PC in Outlook prüfen, Umlaute |
+| A10 | offen: Profilbild (Kartenfoto) kommt in Samsung Kontakte und nach dem Abgleich in Outlook an |
 | A7 | geht nicht, Knopf entfernt |
 | A8 | geht nicht, Knopf entfernt |
 
