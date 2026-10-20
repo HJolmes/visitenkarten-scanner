@@ -132,7 +132,8 @@ export function parseVisitenkarte(rohtext: string): Kontakt {
   }
 
   // 6. Name: Kandidaten bewerten, die Firmenzeile ist ausgeschlossen
-  const lokal = k.emails[0] ? kompakt(k.emails[0].split('@')[0]) : '';
+  // Personenbezogener Teil der Mail; Sammeladressen (info@, firma@firma.de) verraten keinen Namen
+  const lokal = personenMailteil(k.emails, domainStamm);
   let besterName: Zeile | undefined;
   let besteWertung = 1;
   for (const z of zeilen) {
@@ -280,12 +281,27 @@ function istMobilnummer(nummer: string): boolean {
 
 // ---------- Name ----------
 
+const SAMMELADRESSE = /^(?:info|kontakt|contact|mail|email|office|buero|service|zentrale|vertrieb|verkauf|sales|post|team|hallo|hello|anfrage|anfragen|empfang|verwaltung)$/;
+
+function personenMailteil(emails: string[], domainStamm: string): string {
+  for (const m of emails) {
+    const lokal = kompakt(m.split('@')[0]);
+    if (lokal.length < 3 || SAMMELADRESSE.test(lokal)) continue;
+    if (domainStamm && domainStamm.includes(lokal)) continue;
+    return lokal;
+  }
+  return '';
+}
+
 function nameWertung(t: string, mailLokal: string): number {
   if (/\d|@/.test(t)) return -10;
+  // Logo- und Scanreste ("J” HEMPELMANN"): Namen bestehen nur aus Buchstaben, Bindestrich, Punkt
+  if (/[^A-Za-zÄÖÜäöüßÀ-ÿ'’.,\- ]/.test(t)) return -5;
   if (RECHTSFORM.test(t) || FIRMENWORT.test(t)) return -10;
   const ohneTitel = t.replace(ANREDE, '').replace(TITEL, ' ').replace(/,/g, ' ');
   const woerter = ohneTitel.split(/\s+/).filter(Boolean);
   if (woerter.length < 2 || woerter.length > 5) return -5;
+  if (woerter.some((x) => x.length === 1)) return -3;
   let w = 0;
   if (POSITION.test(t)) w -= 6;
   if (ANREDE.test(t)) w += 3;

@@ -102,6 +102,28 @@ describe('parseVisitenkarte', () => {
     expect(k.ort).toBe('Wien');
     expect(k.land).toBe('Österreich');
   });
+
+  it('Sammeladresse mit Firmennamen macht das Logo nicht zum Namen, Logo-Reste werden übergangen', () => {
+    // Nachbau eines echten Fehlers (20.10.2026): Mail firma@firma-hygiene.de, Logo als Text erkannt
+    const k = parseVisitenkarte(
+      [
+        'J” MUSTERFIRMA',
+        'Erik Beispielmann',
+        'Musterfirma GmbH',
+        'Hygienegroßhandel',
+        'Beispielweg 230',
+        '33649 Bielefeld',
+        'Tel.: 0521 - 94600 - 0',
+        'Mobil: 0177 - 4272227',
+        'www.musterfirma-hygiene.de',
+        'musterfirma@musterfirma-hygiene.de',
+      ].join('\n'),
+    );
+    expect(k.vorname).toBe('Erik');
+    expect(k.nachname).toBe('Beispielmann');
+    expect(k.firma).toBe('Musterfirma GmbH');
+    expect(k.notiz).not.toContain('Erik');
+  });
 });
 
 describe('zerlegeName', () => {
