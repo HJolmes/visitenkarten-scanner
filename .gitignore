@@ -40,5 +40,6 @@ yarn-error.*
 /ios
 /android
 
-# Web-OCR-Dateien, erzeugt von scripts/web-ocr-dateien.mjs
+# Web-Dateien (OCR, QR), erzeugt von scripts/web-dateien.mjs
 public/tesseract/
+public/zxing/

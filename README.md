@@ -1,18 +1,39 @@
 # Visitenkarten-Scanner
 
-Visitenkarte fotografieren, Felder prüfen, Kontakt speichern. Läuft **offline und ohne KI**
+Visitenkarte fotografieren, Felder prüfen, Kontakt speichern. **Ohne KI**, Texterkennung
 auf dem Gerät. Kein Connector: Gespeichert wird über das Telefon selbst, Outlook bekommt den
-Kontakt über das Exchange-Konto. Später kommt der Abgleich mit dem Jolmes-CRM dazu.
+Kontakt über das Exchange-Konto. Abgleich mit dem Jolmes-CRM kommt später.
 
-| Gerät | Weg | Stand |
-|---|---|---|
-| **Android** (Hauptziel) | App (Expo/React Native), Texterkennung Google ML Kit, Modell in der App gebündelt | Code fertig, JS-Bundle baut, **auf einem Gerät noch nicht getestet** |
-| iPhone (Einzelfälle) | Web-App im Browser, Texterkennung tesseract.js, Kontakt als vCard | im Browser (Chromium) getestet, auf einem iPhone noch nicht |
+**Zuerst wird die Web-App (PWA) gebaut** (Entscheidung 20.10.2026). Sie läuft auf Android und
+iPhone im Browser und lässt sich als App auf den Startbildschirm legen. Die Android-App bleibt
+im Code, ruht aber.
+
+| Weg | Stand |
+|---|---|
+| **Web-App (PWA)**, Android und iPhone | im Browser (Chromium, auch als Android-Handy simuliert) getestet: QR-Code, Texterkennung, vCard-Download, Service Worker. **Auf echten Handys noch nicht**, braucht zuerst eine HTTPS-Adresse |
+| Android-App (ruht) | Code fertig, JS-Bundle baut, nie auf einem Gerät gelaufen |
 
 Begründungen und Entscheidungen: [docs/KONZEPT.md](docs/KONZEPT.md).
-Erster Gerätetest: [docs/TESTPLAN-ANDROID.md](docs/TESTPLAN-ANDROID.md).
+Erster Gerätetest: [docs/TESTPLAN-PWA.md](docs/TESTPLAN-PWA.md) (Android-App: [docs/TESTPLAN-ANDROID.md](docs/TESTPLAN-ANDROID.md)).
 
-## Ablauf in der App
+## Ablauf in der Web-App
+
+1. **Karte fotografieren** (öffnet die Kamera) oder Bild auswählen
+2. QR-Code mit vCard wird zuerst gelesen. Sonst Texterkennung (tesseract.js), danach
+   ordnen feste Regeln die Felder zu (`src/kern/parser.ts`)
+3. Felder prüfen und korrigieren
+4. Speichern:
+   - **Als Kontakt speichern (vCard)**: iPhone zeigt sofort die Kontaktvorschau,
+     „Neuen Kontakt erstellen“. Android lädt die Datei, Tipp auf „Öffnen“, App wählen
+   - **Teilen …** (wenn der Browser Dateien teilen kann): Teilen-Menü des Telefons
+   - **Kontakt-Editor öffnen (Test)**, nur Android: Versuch, den Kontakt-Editor wie in der
+     App direkt zu öffnen. Ob Chrome das zulässt, ist ungeprüft
+
+Kamera, Texterkennung und QR laufen im Browser auf dem Handy. Die nötigen Dateien
+(Texterkennung, QR) liefert der eigene Server mit aus. Der Service Worker hält sie im
+Zwischenspeicher, nach dem ersten Aufruf geht die Erkennung auch ohne Netz.
+
+## Ablauf in der Android-App (ruht)
 
 1. **Karte fotografieren** (oder Bild auswählen), zuschneiden
 2. Hat die Karte einen QR-Code mit vCard, wird der gelesen (fehlerfrei). Sonst Texterkennung,
@@ -34,10 +55,12 @@ src/kern/                    reines TypeScript, ohne React Native, mit Tests
   android-kontakt.ts         Extras für den Android-Kontakt-Editor
 src/plattform/               je Plattform eine Datei (.ts = Android, .web.ts = Browser)
   ocr(.web).ts               Texterkennung
-  speichern(.web).ts         Speichern
+  qr(.web).ts                QR-Code im Foto
+  speichern(.web).ts         Knöpfe zum Speichern
+public/                      nur Web: index.html, manifest.webmanifest, sw.js, icons/
 src/verarbeiten.ts           Bild -> QR oder Texterkennung -> Kontakt
 test/                        Tests für src/kern (nur erfundene Karten)
-scripts/web-ocr-dateien.mjs  legt die OCR-Dateien für den Browser nach public/tesseract
+scripts/web-dateien.mjs      legt OCR- und QR-Dateien nach public/tesseract und public/zxing
 ```
 
 ## Befehle
@@ -46,11 +69,17 @@ scripts/web-ocr-dateien.mjs  legt die OCR-Dateien für den Browser nach public/t
 npm install
 npm test              # Regeln, vCard, Android-Extras
 npm run typecheck
-npm run web:ocr       # einmalig vor dem Web-Start: OCR-Dateien nach public/tesseract
-npx expo start --web  # Web-Variante lokal
+npm run web:dateien   # einmalig vor dem Web-Start: OCR- und QR-Dateien nach public/
+npx expo start --web  # Web-App lokal
+npm run web:export    # fertige Web-App nach dist/, diesen Ordner auf einen HTTPS-Server legen
 ```
 
-**Android-App bauen.** ML Kit ist ein nativer Baustein, die App läuft deshalb nicht in Expo
+**Web-App ausliefern.** `dist/` ist eine statische Seite (rund 30 MB, überwiegend das
+deutsche OCR-Modell). Sie braucht **HTTPS**, sonst gehen Service Worker und „Zum
+Startbildschirm“ nicht. Jeder Pfad, der keine Datei ist, muss auf `index.html` zeigen. Wo sie
+liegen soll, ist noch offen (KONZEPT.md).
+
+**Android-App bauen (ruht).** ML Kit ist ein nativer Baustein, die App läuft deshalb nicht in Expo
 Go, sondern braucht einen eigenen Build:
 
 - in der Cloud: `npx eas-cli build -p android --profile apk` (Expo-Konto nötig), ergibt eine

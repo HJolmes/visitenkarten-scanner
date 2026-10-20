@@ -4,6 +4,7 @@
   "main": "index.ts",
   "dependencies": {
     "@react-native-ml-kit/text-recognition": "^2.0.0",
+    "barcode-detector": "^3.2.3",
     "expo": "~58.0.16",
     "expo-camera": "~58.0.11",
     "expo-file-system": "~58.0.10",
@@ -31,8 +32,8 @@
     "web": "expo start --web",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "web:ocr": "node scripts/web-ocr-dateien.mjs",
-    "web:export": "node scripts/web-ocr-dateien.mjs && expo export --platform web"
+    "web:export": "npm run web:dateien && expo export --platform web",
+    "web:dateien": "node scripts/web-dateien.mjs"
   },
   "private": true,
   "description": "Visitenkarten offline scannen, ohne KI, Kontakt in Outlook und aufs Handy"

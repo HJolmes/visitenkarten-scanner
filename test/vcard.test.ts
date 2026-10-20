@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { insertExtras } from '../src/kern/android-kontakt';
+import { insertExtras, kontaktEditorIntentUrl } from '../src/kern/android-kontakt';
 import { Kontakt, leererKontakt } from '../src/kern/kontakt';
 import { dateinameFuer, erzeugeVCard, leseKontaktCode } from '../src/kern/vcard';
 
@@ -106,5 +106,17 @@ describe('insertExtras (Android)', () => {
       finishActivityOnSaveCompleted: true,
     });
     expect(e.notes).toBe('Abteilung: Einkauf\nWeb: www.beispiel.de\nMesse Oktober');
+  });
+});
+
+describe('kontaktEditorIntentUrl (Web-App auf Android)', () => {
+  it('Extras mit Typpräfix, Werte kodiert', () => {
+    const u = kontaktEditorIntentUrl(beispiel());
+    expect(u.startsWith('intent:#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.dir/contact;')).toBe(true);
+    expect(u).toContain(';S.name=Dr.%20Erika%20Beispiel;');
+    expect(u).toContain(';i.phone_type=3;');
+    expect(u).toContain(';S.postal=Musterstra%C3%9Fe%2012%0A33100%20Paderborn%0ADeutschland;');
+    expect(u).toContain(';B.finishActivityOnSaveCompleted=true;');
+    expect(u.endsWith(';end')).toBe(true);
   });
 });

@@ -15,10 +15,11 @@ import {
   View,
 } from 'react-native';
 import { Kontakt, Telefonart, leererKontakt } from './src/kern/kontakt';
-import { alsVCardOeffnen, alsVCardTeilen, inKontakteSpeichern } from './src/plattform/speichern';
+import { speicherAktionen } from './src/plattform/speichern';
 import { bildAuswerten } from './src/verarbeiten';
 
 const FARBE = '#0B5394';
+const AKTIONEN = speicherAktionen();
 const ART_TEXT: Record<Telefonart, string> = { arbeit: 'Tel.', mobil: 'Mobil', fax: 'Fax' };
 const ART_FOLGE: Record<Telefonart, Telefonart> = { arbeit: 'mobil', mobil: 'fax', fax: 'arbeit' };
 
@@ -102,7 +103,7 @@ export default function App() {
             <Knopf text="Karte fotografieren" onPress={() => bildHolen('kamera')} />
             <Knopf text="Bild auswählen" onPress={() => bildHolen('galerie')} zweit />
             <Knopf text="Von Hand erfassen" onPress={() => setKontakt(leererKontakt())} zweit />
-            <Text style={s.hinweis}>Läuft komplett auf dem Gerät. Hat die Karte einen QR-Code, wird er zuerst gelesen.</Text>
+            <Text style={s.hinweis}>Die Erkennung läuft auf dem Gerät. Hat die Karte einen QR-Code, wird er zuerst gelesen.</Text>
           </View>
         )}
 
@@ -163,12 +164,9 @@ export default function App() {
             <Eingabe label="Notiz" wert={kontakt.notiz} onChange={(v) => setze('notiz', v)} mehrzeilig />
 
             <View style={s.aktionen}>
-              <Knopf
-                text={Platform.OS === 'android' ? 'In Kontakte / Outlook speichern' : 'Als Kontakt speichern'}
-                onPress={() => ausfuehren(inKontakteSpeichern)}
-              />
-              {Platform.OS === 'android' && <Knopf text="Als vCard öffnen mit …" onPress={() => ausfuehren(alsVCardOeffnen)} zweit />}
-              {Platform.OS === 'android' && <Knopf text="vCard teilen" onPress={() => ausfuehren(alsVCardTeilen)} zweit />}
+              {AKTIONEN.map((a) => (
+                <Knopf key={a.text} text={a.text} onPress={() => ausfuehren(a.ausfuehren)} zweit={!a.haupt} />
+              ))}
               <Knopf text="Neue Karte" onPress={neu} zweit />
             </View>
 

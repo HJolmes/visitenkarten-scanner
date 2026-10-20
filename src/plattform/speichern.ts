@@ -1,4 +1,4 @@
-// Speichern auf Android. Zwei Wege, beide ohne Connector und ohne Kontaktberechtigung:
+// Speichern in der Android-App. Zwei Wege, beide ohne Connector und ohne Kontaktberechtigung:
 // 1. Kontakt-Editor des Telefons öffnet sich vorausgefüllt, Konto wählen (Outlook), Speichern.
 // 2. vCard-Datei mit "Öffnen mit" an eine App übergeben (Kontakte, Outlook, …).
 import { File, Paths } from 'expo-file-system';
@@ -7,10 +7,9 @@ import * as Sharing from 'expo-sharing';
 import { ACTION_INSERT, KONTAKT_MIME, insertExtras } from '../kern/android-kontakt';
 import { Kontakt } from '../kern/kontakt';
 import { dateinameFuer, erzeugeVCard } from '../kern/vcard';
+import { SpeicherAktion } from './aktion';
 
-export const WEGE = ['editor', 'vcard', 'teilen'] as const;
-
-export async function inKontakteSpeichern(k: Kontakt): Promise<void> {
+async function inKontakteSpeichern(k: Kontakt): Promise<void> {
   await IntentLauncher.startActivityAsync(ACTION_INSERT, {
     type: KONTAKT_MIME,
     extra: insertExtras(k),
@@ -25,7 +24,7 @@ function schreibeVCard(k: Kontakt): File {
   return datei;
 }
 
-export async function alsVCardOeffnen(k: Kontakt): Promise<void> {
+async function alsVCardOeffnen(k: Kontakt): Promise<void> {
   const datei = schreibeVCard(k);
   await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
     data: datei.contentUri,
@@ -34,7 +33,15 @@ export async function alsVCardOeffnen(k: Kontakt): Promise<void> {
   });
 }
 
-export async function alsVCardTeilen(k: Kontakt): Promise<void> {
+async function alsVCardTeilen(k: Kontakt): Promise<void> {
   const datei = schreibeVCard(k);
   await Sharing.shareAsync(datei.uri, { mimeType: 'text/x-vcard', dialogTitle: 'Kontakt teilen' });
+}
+
+export function speicherAktionen(): SpeicherAktion[] {
+  return [
+    { text: 'In Kontakte / Outlook speichern', ausfuehren: inKontakteSpeichern, haupt: true },
+    { text: 'Als vCard öffnen mit …', ausfuehren: alsVCardOeffnen },
+    { text: 'vCard teilen', ausfuehren: alsVCardTeilen },
+  ];
 }

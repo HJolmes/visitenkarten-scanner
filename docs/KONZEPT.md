@@ -4,9 +4,14 @@ Stand 20.10.2026. Entschieden mit Henning im Gespräch.
 
 ## Vorgaben
 
-- **Offline und ohne KI.** Kein Cloud-Dienst, kein Sprachmodell, nichts verlässt das Gerät.
+- **Ohne KI.** Kein Cloud-Dienst, kein Sprachmodell, die Karte verlässt das Gerät nicht.
   Die Texterkennung selbst arbeitet mit einem trainierten Modell (ohne geht OCR nicht), es
   läuft aber lokal. Die Zuordnung der Felder geschieht nur über feste Regeln
+- **Offline ist für die Web-App nicht zwingend** (Henning, 20.10.2026). Sie darf Dateien aus
+  dem Netz laden. Trotzdem kommen alle Dateien vom eigenen Server, das ist einfacher und
+  schneller, und nach dem ersten Aufruf läuft sie dank Service Worker auch ohne Netz
+- **Zuerst nur die Web-App (PWA)**, noch ohne CRM (Henning, 20.10.2026). Vielleicht reicht
+  sie schon. Die Android-App ruht
 - **Kein Connector**, sondern aktiver Import: Der Mensch tippt auf Speichern
 - **Ziel Outlook**, am liebsten direkt, sonst so, dass nur noch „Speichern“ fehlt
 - Hauptsächlich **Android**, iPhone in Einzelfällen, vernachlässigbar
@@ -15,6 +20,16 @@ Stand 20.10.2026. Entschieden mit Henning im Gespräch.
 - Eigenes Projekt, nicht in der Jolmes Suite. Später Anbindung ans CRM
 
 ## Wie der Kontakt nach Outlook kommt
+
+### Web-App (aktuell)
+
+| Weg | Wie | Bewertung |
+|---|---|---|
+| **vCard herunterladen** (Hauptknopf) | Datei wird erzeugt und geladen | iPhone: Safari zeigt die Kontaktvorschau, „Neuen Kontakt erstellen“, landet im Standardkonto (in iOS auf Exchange stellen, dann in Outlook). Android: Chrome lädt die Datei, „Öffnen“, App wählen. Welche Apps Android anbietet (Kontakte, Outlook?), zeigt der Test |
+| Teilen | Web Share API mit der vCard als Datei | erscheint nur, wenn der Browser das Teilen dieser Datei erlaubt. Ob Chrome `.vcf` teilen lässt, ist ungeprüft |
+| Kontakt-Editor (Test), nur Android | `intent:`-Adresse mit denselben Feldern wie in der App | wäre der Ein-Tipp-Weg wie in der App. Chrome startet über `intent:` aber nur Apps, die Aufrufe aus dem Browser erlauben; ob der Kontakt-Editor dazugehört, ist ungeprüft. Geht es nicht, fliegt der Knopf raus |
+
+### Android-App (ruht)
 
 | Weg | Wie | Bewertung |
 |---|---|---|
@@ -32,25 +47,23 @@ Webseite und Abteilung kennt der Intent nicht, sie stehen in der Notiz.
 - **Als App:** möglich, aber aufwendig. Nötig ist das Apple Developer Program (kostenpflichtig,
   jährlich). Verteilt wird ohne App Store über TestFlight (Builds laufen nach 90 Tagen ab)
   oder Ad-hoc (jedes Gerät einzeln registrieren). Für Einzelfälle lohnt das nicht
-- **Darum Web-App.** Dieselbe Codebasis läuft im Browser (`.web.ts`-Dateien). Die
+- **Darum Web-App** (inzwischen der Hauptweg für alle Geräte). Dieselbe Codebasis läuft im Browser (`.web.ts`-Dateien). Die
   Texterkennung (tesseract.js) läuft **im Browser auf dem Gerät**, auch die OCR-Dateien
   kommen vom eigenen Server, nicht aus dem Internet. Gespeichert wird per vCard: Safari zeigt
   die Kontaktvorschau, „Neuen Kontakt erstellen“ legt ihn im Standardkonto an. Ist das
   Exchange-Konto in iOS als Standard für Kontakte eingestellt, landet er in Outlook
-- **Offline auf dem iPhone:** Die Erkennung selbst braucht kein Netz. Zum Öffnen der Seite
-  aber schon, solange es keinen Service Worker gibt (offen, siehe unten). Mit Service Worker
-  wäre die Web-App nach dem ersten Aufruf auch ohne Netz nutzbar
-- QR-Codes werden im Browser derzeit **nicht** gelesen: Die QR-Erkennung von expo-camera lädt
-  im Browser eine Datei aus dem Netz (jsdelivr). Abgeschaltet, bis sie lokal ausgeliefert wird
-- Die Web-App braucht einen Ort zum Ausliefern (z. B. der Server der Jolmes Suite). Noch
-  nicht entschieden
+- Service Worker vorhanden: nach dem ersten Aufruf läuft die Web-App auch ohne Netz
+- QR-Codes: Chrome auf Android hat einen eingebauten Leser (BarcodeDetector). Safari nicht,
+  dort springt der Nachbau `barcode-detector` ein, dessen Datei (`public/zxing`) der eigene
+  Server mitliefert
+- Die Web-App braucht eine HTTPS-Adresse zum Ausliefern. Noch nicht entschieden
 
 ## Texterkennung
 
 | Plattform | Baustein | offline |
 |---|---|---|
 | Android | `@react-native-ml-kit/text-recognition` 2.0, bindet `com.google.mlkit:text-recognition` ein, das ist die **gebündelte** Variante (Modell steckt in der APK, kein Nachladen über Play-Dienste) | ja |
-| Browser | `tesseract.js` 7 mit deutschem Modell (`@tesseract.js-data/deu`, best_int), Dateien in `public/tesseract` | ja |
+| Browser | `tesseract.js` 7 mit deutschem Modell (`@tesseract.js-data/deu`, best_int), Dateien in `public/tesseract` | ja, nach dem ersten Aufruf |
 
 Hinweis: Das ML-Kit-Paket bindet auch die Modelle für Chinesisch, Japanisch, Koreanisch und
 Devanagari ein. Das macht die APK größer. Lässt sich später mit einem eigenen Gradle-Eintrag
@@ -96,10 +109,11 @@ Ziel: Kontakte landen auch im CRM der Jolmes Suite und bleiben dort aktuell.
 
 ## Offen
 
-- [ ] Gerätetest Android nach `docs/TESTPLAN-ANDROID.md`
+- [ ] **HTTPS-Adresse für die Web-App** festlegen (Entscheidung Henning)
+- [ ] Gerätetest Web-App nach `docs/TESTPLAN-PWA.md`
 - [ ] Erkennungsquote an echten Karten messen (Karten nicht ins Repo, nur die Fehlerbilder
       als erfundene Testfälle nachbauen)
-- [ ] Web-App: Service Worker für echten Offline-Betrieb, Ort zum Ausliefern
-- [ ] Web-App: QR-Erkennung mit lokal ausgelieferter Datei
-- [ ] Kantenerkennung / Dokumentenscanner statt freiem Zuschnitt
-- [ ] CRM-Anbindung (Warteschlange, Endpunkt in der Suite)
+- [ ] Zuschnitt: Im Browser gibt es keinen Zuschnitt nach dem Foto, die Karte sollte das
+      Bild füllen. Bei schlechten Ergebnissen Zuschnitt nachrüsten
+- [ ] Danach entscheiden: reicht die Web-App, oder doch die Android-App (Testplan Android)
+- [ ] CRM-Anbindung (Warteschlange, Endpunkt in der Suite), später

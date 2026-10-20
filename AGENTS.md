@@ -3,7 +3,7 @@
 Erst `README.md` und `docs/KONZEPT.md` lesen. Sprache in Code-Bezeichnern, Kommentaren und
 Doku: Deutsch, wie im Bestand.
 
-- Vorgaben nicht aufweichen: offline, keine KI, kein Cloud-Dienst, kein Connector
+- Vorgaben nicht aufweichen: keine KI, kein Cloud-Dienst für die Erkennung, kein Connector. Offline ist für die Web-App erwünscht, aber nicht zwingend
 - Keine echten Visitenkarten oder Personendaten ins Repo, Testfälle erfinden
 - Vor dem Abschluss: `npm test` und `npm run typecheck`
 
