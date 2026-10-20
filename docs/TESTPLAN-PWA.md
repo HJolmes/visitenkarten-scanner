@@ -1,6 +1,6 @@
 # Testplan Web-App (PWA), erster Gerätetest
 
-Voraussetzung: Die Web-App liegt unter einer HTTPS-Adresse. Dauer etwa 20 Minuten.
+Adresse: https://hjolmes.github.io/visitenkarten-scanner/ Dauer etwa 20 Minuten.
 Je ein Android-Handy (Chrome) und, wenn zur Hand, ein iPhone (Safari).
 
 ## Android (Chrome)

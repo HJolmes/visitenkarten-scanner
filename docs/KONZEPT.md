@@ -56,7 +56,7 @@ Webseite und Abteilung kennt der Intent nicht, sie stehen in der Notiz.
 - QR-Codes: Chrome auf Android hat einen eingebauten Leser (BarcodeDetector). Safari nicht,
   dort springt der Nachbau `barcode-detector` ein, dessen Datei (`public/zxing`) der eigene
   Server mitliefert
-- Die Web-App braucht eine HTTPS-Adresse zum Ausliefern. Noch nicht entschieden
+- Ausgeliefert vorerst über GitHub Pages (Henning, 20.10.2026). Später ggf. Server der Suite
 
 ## Texterkennung
 
@@ -109,7 +109,8 @@ Ziel: Kontakte landen auch im CRM der Jolmes Suite und bleiben dort aktuell.
 
 ## Offen
 
-- [ ] **HTTPS-Adresse für die Web-App** festlegen (Entscheidung Henning)
+- [x] HTTPS-Adresse: vorerst GitHub Pages (Henning, 20.10.2026),
+      https://hjolmes.github.io/visitenkarten-scanner/
 - [ ] Gerätetest Web-App nach `docs/TESTPLAN-PWA.md`
 - [ ] Erkennungsquote an echten Karten messen (Karten nicht ins Repo, nur die Fehlerbilder
       als erfundene Testfälle nachbauen)

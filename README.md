@@ -74,10 +74,15 @@ npx expo start --web  # Web-App lokal
 npm run web:export    # fertige Web-App nach dist/, diesen Ordner auf einen HTTPS-Server legen
 ```
 
-**Web-App ausliefern.** `dist/` ist eine statische Seite (rund 30 MB, überwiegend das
-deutsche OCR-Modell). Sie braucht **HTTPS**, sonst gehen Service Worker und „Zum
-Startbildschirm“ nicht. Jeder Pfad, der keine Datei ist, muss auf `index.html` zeigen. Wo sie
-liegen soll, ist noch offen (KONZEPT.md).
+**Web-App ausliefern.** Läuft über **GitHub Pages**: Jeder Push auf `main` baut und
+veröffentlicht sie (`.github/workflows/pages.yml`) unter
+**https://hjolmes.github.io/visitenkarten-scanner/**. Einmalig in den Repo-Einstellungen
+nötig: Settings > Pages > Source „GitHub Actions“. Die Seite ist öffentlich erreichbar, enthält
+aber keine Daten; Karten werden nur im Browser verarbeitet.
+
+`dist/` ist eine statische Seite (rund 30 MB, überwiegend das deutsche OCR-Modell) und kann
+genauso auf jeden anderen HTTPS-Server. Unterpfad beim Bauen mit `BASE_URL` setzen
+(z. B. `BASE_URL=/visitenkarten-scanner npm run web:export`), direkt auf einer Domain ohne.
 
 **Android-App bauen (ruht).** ML Kit ist ein nativer Baustein, die App läuft deshalb nicht in Expo
 Go, sondern braucht einen eigenen Build:

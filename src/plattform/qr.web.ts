@@ -2,9 +2,10 @@
 // mit; wo er fehlt (Safari, iPhone), hilft der Nachbau aus barcode-detector. Dessen
 // WASM-Datei kommt vom eigenen Server (public/zxing), nicht vom CDN.
 import { BarcodeDetector as Nachbau, setZXingModuleOverrides } from 'barcode-detector';
+import { basisUrl } from './basis.web';
 
 setZXingModuleOverrides({
-  locateFile: (pfad: string, prefix: string) => (pfad.endsWith('.wasm') ? '/zxing/zxing_reader.wasm' : prefix + pfad),
+  locateFile: (pfad: string, prefix: string) => (pfad.endsWith('.wasm') ? basisUrl('zxing/zxing_reader.wasm') : prefix + pfad),
 });
 
 type Detector = { detect(bild: ImageBitmapSource): Promise<Array<{ rawValue: string }>> };

@@ -1,0 +1,53 @@
+# Baut die Web-App und stellt sie auf GitHub Pages bereit:
+# https://hjolmes.github.io/visitenkarten-scanner/
+# Einmalig nötig: Settings > Pages > Source: "GitHub Actions".
+name: Web-App auf GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  bauen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - name: Web-App exportieren
+        run: npm run web:export
+        env:
+          BASE_URL: /${{ github.event.repository.name }}
+          EXPO_NO_TELEMETRY: 1
+      - name: Für Pages vorbereiten
+        run: |
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  bereitstellen:
+    needs: bauen
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
