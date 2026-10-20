@@ -2,6 +2,14 @@
 // Bewusst flach gehalten: so passt es in die Korrekturmaske, in die vCard und
 // später als Vorschlag ins CRM.
 
+import { Rechteck } from './ocr';
+
+/**
+ * Wo ein Feld auf dem Kartenbild steht. Schlüssel: name, firma, position, abteilung, strasse,
+ * ort, web, telefon0…, email0…
+ */
+export type Bereiche = Partial<Record<string, Rechteck>>;
+
 export type Telefonart = 'arbeit' | 'mobil' | 'fax';
 
 export interface Telefon {
@@ -32,6 +40,8 @@ export interface Kontakt {
   rohtext: string;
   /** Profilbild als JPEG in Base64 (ohne "data:"-Vorsatz), z. B. das Foto der Karte */
   foto?: string;
+  /** Lage der erkannten Felder auf dem Kartenbild (nur bei Texterkennung) */
+  bereiche?: Bereiche;
 }
 
 export function leererKontakt(): Kontakt {

@@ -5,7 +5,8 @@
 // Ergebnis ist immer ein Vorschlag, die Korrekturmaske ist Pflicht.
 
 import { parsePhoneNumberFromString } from 'libphonenumber-js/min';
-import { Kontakt, Telefon, Telefonart, leererKontakt } from './kontakt';
+import { Bereiche, Kontakt, Telefon, Telefonart, leererKontakt } from './kontakt';
+import { OcrErgebnis, OcrWort, Rechteck, rohtextAus, vereinige } from './ocr';
 
 const EMAIL = /[A-Z0-9._%+-]+@[A-Z0-9-]+(?:\.[A-Z0-9-]+)*\.[A-Z]{2,}/gi;
 const WEB = /\b(?:https?:\/\/[^\s,;|]+|www\.[^\s,;|]+)/gi;
@@ -43,14 +44,23 @@ const NAMENSZUSATZ = /^(?:von|van|de|der|den|zu|vom|zum|ten|ter|di|da|du|le|la)$
 interface Zeile {
   text: string;
   benutzt: boolean;
+  /** Nur bei Texterkennung mit Positionen: Wörter der Bildzeile und ihre Lage */
+  woerter?: OcrWort[];
+  box?: Rechteck;
 }
 
-export function parseVisitenkarte(rohtext: string): Kontakt {
+/** Text oder Ergebnis der Texterkennung mit Positionen -> Kontakt (mit Bildbereichen je Feld) */
+export function parseVisitenkarte(eingabe: string | OcrErgebnis): Kontakt {
   const k = leererKontakt();
   k.quelle = 'ocr';
-  k.rohtext = rohtext;
+  k.rohtext = typeof eingabe === 'string' ? eingabe : rohtextAus(eingabe);
+  const bereiche: Bereiche = {};
+  const merke = (feld: string, z: Zeile, quelltext: string) => {
+    const box = boxFuer(z, quelltext);
+    if (box) bereiche[feld] = box;
+  };
 
-  const zeilen: Zeile[] = zerlegeZeilen(rohtext).map((text) => ({ text, benutzt: false }));
+  const zeilen = zeilenAus(eingabe);
 
   // 1. Amtliche Zeilen (Register, Bank) gleich in die Notiz, damit ihre Ziffern nicht als Telefon gelten
   const notizen: string[] = [];
@@ -66,14 +76,22 @@ export function parseVisitenkarte(rohtext: string): Kontakt {
     if (z.benutzt) continue;
     let t = normalisiereEmail(z.text);
     const mails = t.match(EMAIL) ?? [];
-    for (const m of mails) if (!k.emails.includes(m.toLowerCase())) k.emails.push(m.toLowerCase());
+    for (const m of mails) {
+      if (k.emails.includes(m.toLowerCase())) continue;
+      merke(`email${k.emails.length}`, z, m);
+      k.emails.push(m.toLowerCase());
+    }
     t = t.replace(EMAIL, ' ');
     const webs = t.match(WEB) ?? [];
-    if (webs[0] && !k.web) k.web = webs[0].replace(/[.,;]+$/, '');
+    if (webs[0] && !k.web) {
+      k.web = webs[0].replace(/[.,;]+$/, '');
+      merke('web', z, webs[0]);
+    }
     t = t.replace(WEB, ' ');
-    t = ohneLabel(t, /\b(?:e-?mail|mail|email|web|internet|www|homepage)\s*:?/gi);
+    t = ohneLabel(t, /\b(?:e-?mail|mail|email|web|internet|www|homepage)\b\s*:?/gi);
     if (!k.web && NACKTE_DOMAIN.test(t.trim())) {
       k.web = t.trim();
+      merke('web', z, k.web);
       t = '';
     }
     z.text = aufraeumen(t);
@@ -85,8 +103,10 @@ export function parseVisitenkarte(rohtext: string): Kontakt {
     if (z.benutzt) continue;
     const gefunden = findeTelefone(z.text);
     if (!gefunden.telefone.length) continue;
-    for (const t of gefunden.telefone) {
-      if (!k.telefone.some((x) => x.nummer === t.nummer)) k.telefone.push(t);
+    for (const { roh, ...t } of gefunden.telefone) {
+      if (k.telefone.some((x) => x.nummer === t.nummer)) continue;
+      merke(`telefon${k.telefone.length}`, z, roh);
+      k.telefone.push(t);
     }
     z.text = aufraeumen(gefunden.rest);
     if (!z.text) z.benutzt = true;
@@ -101,15 +121,18 @@ export function parseVisitenkarte(rohtext: string): Kontakt {
     k.plz = m[2];
     k.ort = m[3].trim();
     k.land = landAusKuerzel(m[1]);
+    merke('ort', z, `${m[2]} ${m[3]}`);
     const davor = aufraeumen(z.text.slice(0, m.index));
     z.benutzt = true;
     if (davor && istStrasse(davor)) {
       k.strasse = davor;
+      merke('strasse', z, davor);
     } else {
       if (davor) notizen.push(davor);
       const vorher = zeilen[i - 1];
       if (vorher && !vorher.benutzt && istStrasse(vorher.text)) {
         k.strasse = vorher.text;
+        merke('strasse', vorher, vorher.text);
         vorher.benutzt = true;
       }
     }
@@ -119,6 +142,7 @@ export function parseVisitenkarte(rohtext: string): Kontakt {
     const z = zeilen.find((x) => !x.benutzt && STRASSE_ENDUNG.test(x.text) && HAUSNUMMER.test(x.text));
     if (z) {
       k.strasse = z.text;
+      merke('strasse', z, z.text);
       z.benutzt = true;
     }
   }
@@ -152,10 +176,12 @@ export function parseVisitenkarte(rohtext: string): Kontakt {
   }
   if (firma) {
     k.firma = firma.text;
+    merke('firma', firma, firma.text);
     firma.benutzt = true;
   }
   if (besterName) {
     Object.assign(k, zerlegeName(besterName.text));
+    merke('name', besterName, besterName.text);
     besterName.benutzt = true;
   }
 
@@ -164,28 +190,71 @@ export function parseVisitenkarte(rohtext: string): Kontakt {
     if (z.benutzt) continue;
     if (ABTEILUNG.test(z.text) && !k.abteilung) {
       k.abteilung = z.text;
+      merke('abteilung', z, z.text);
       z.benutzt = true;
     } else if (POSITION.test(z.text) && !/\d/.test(z.text)) {
+      if (!k.position) merke('position', z, z.text);
       k.position = k.position ? `${k.position} / ${z.text}` : z.text;
       z.benutzt = true;
     }
   }
 
-  // 8. Rest in die Notiz
-  for (const z of zeilen) if (!z.benutzt) notizen.push(z.text);
+  // 8. Rest in die Notiz; Splitter aus Logos und Sperrschrift ("HG", "TENE") bleiben weg
+  for (const z of zeilen) if (!z.benutzt && !istSplitter(z.text)) notizen.push(z.text);
   k.notiz = notizen.join('\n');
+  if (Object.keys(bereiche).length) k.bereiche = bereiche;
   return k;
 }
 
 // ---------- Zerlegen und Aufräumen ----------
 
+const SPALTENTRENNER = /\s+[|·•]\s+|\s{3,}|\t/;
+
+function zeilenAus(eingabe: string | OcrErgebnis): Zeile[] {
+  const quellen: Array<{ text: string; woerter?: OcrWort[]; box?: Rechteck }> =
+    typeof eingabe === 'string' ? eingabe.replace(/\r/g, '').split('\n').map((text) => ({ text })) : eingabe.zeilen;
+  return quellen.flatMap((q) =>
+    ocrFehlerKorrigieren(q.text)
+      .split(SPALTENTRENNER)
+      .map(aufraeumen)
+      .filter((t) => t.length > 1)
+      .map((text) => ({ text, benutzt: false, woerter: q.woerter, box: q.box })),
+  );
+}
+
 export function zerlegeZeilen(roh: string): string[] {
-  return roh
-    .replace(/\r/g, '')
-    .split('\n')
-    .flatMap((z) => z.split(/\s+[|·•]\s+|\s{3,}|\t/))
-    .map(aufraeumen)
-    .filter((z) => z.length > 1);
+  return zeilenAus(roh).map((z) => z.text);
+}
+
+/**
+ * Typische Lesefehler der Texterkennung, die auf Visitenkarten praktisch nie echt sind:
+ * - "!" zwischen Buchstaben ("Großhande!l" -> "Großhandel", ein "l" wird als "!l" gelesen)
+ * - einzelne Anführungszeichen und Striche als eigenes Wort (Reste von Logos)
+ */
+export function ocrFehlerKorrigieren(t: string): string {
+  return t
+    .replace(/\b[Ww]{3,5}\.(?=[A-Za-z0-9])/g, 'www.')
+    .replace(/([A-Za-zÄÖÜäöüß])!(?=[A-Za-zÄÖÜäöüß])/g, '$1')
+    .replace(/\s?[”“"'‚„`´|]+(?=\s|$)/g, (treffer, stelle: number, ganz: string) =>
+      // nur freistehende Zeichen entfernen, nicht das schließende Anführungszeichen eines Worts
+      stelle === 0 || /\s/.test(ganz[stelle]) ? '' : treffer,
+    );
+}
+
+/** Kurzer Rest ohne Ziffern, z. B. aus einem Logo in Sperrschrift */
+function istSplitter(t: string): boolean {
+  return !/\d/.test(t) && t.replace(/[^A-Za-zÄÖÜäöüß]/g, '').length <= 4;
+}
+
+/** Bildbereich zu einem Feldwert: die Wörter der Zeile, die im Wert vorkommen */
+function boxFuer(z: Zeile, quelltext: string): Rechteck | undefined {
+  if (!z.woerter) return z.box;
+  const q = kompakt(quelltext);
+  const treffer = z.woerter.filter((w) => {
+    const kw = kompakt(w.text);
+    return kw.length > 0 && q.includes(kw);
+  });
+  return treffer.length ? vereinige(treffer.map((w) => w.box)) : z.box;
 }
 
 function aufraeumen(t: string): string {
@@ -241,8 +310,8 @@ function istStrasse(t: string): boolean {
 
 // ---------- Telefon ----------
 
-function findeTelefone(zeile: string): { telefone: Telefon[]; rest: string } {
-  const telefone: Telefon[] = [];
+function findeTelefone(zeile: string): { telefone: Array<Telefon & { roh: string }>; rest: string } {
+  const telefone: Array<Telefon & { roh: string }> = [];
   const vorbereitet = zeile.replace(/(\+\d{1,3})\s*\(0\)\s*/g, '$1 ');
   let rest = vorbereitet;
   TELEFON.lastIndex = 0;
@@ -255,11 +324,18 @@ function findeTelefone(zeile: string): { telefone: Telefon[]; rest: string } {
     let art = label ? artAusLabel(label) : undefined;
     const nummer = formatiere(roh);
     if (!art) art = istMobilnummer(nummer) ? 'mobil' : 'arbeit';
-    telefone.push({ art, nummer });
+    telefone.push({ art, nummer, roh });
     rest = rest.replace(m[0], ' ');
   }
   rest = rest.replace(/\b(?:tel(?:efon)?|fon|phone|mobil(?:e)?|handy|fax|telefax|zentrale|durchwahl)\b\.?\s*:?/gi, ' ');
   return { telefone, rest };
+}
+
+/** Eine Nummer aus freiem Text (z. B. auf dem Bild gewählt), mit Art aus Label oder Vorwahl */
+export function telefonAusText(text: string): Telefon {
+  const gefunden = findeTelefone(text).telefone[0];
+  if (gefunden) return { art: gefunden.art, nummer: gefunden.nummer };
+  return { art: 'arbeit', nummer: aufraeumen(text) };
 }
 
 function artAusLabel(label: string): Telefonart | undefined {

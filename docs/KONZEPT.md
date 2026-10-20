@@ -77,6 +77,20 @@ Hinweis: Das ML-Kit-Paket bindet auch die Modelle für Chinesisch, Japanisch, Ko
 Devanagari ein. Das macht die APK größer. Lässt sich später mit einem eigenen Gradle-Eintrag
 abspecken, wenn die Größe stört.
 
+## Prüfen am Bild (seit 20.10.2026)
+
+Die Texterkennung liefert jedes Wort mit seiner Lage. Daraus entstehen Zeilen; liegt in einer
+Bildzeile eine große Lücke, sind es zwei Spalten und zwei Zeilen (`zeilenAusWoertern`). Die
+Feldzuordnung merkt sich je Feld den Bereich (`Kontakt.bereiche`). Die Maske zeigt ihn als
+Ausschnitt neben dem Feld; antippen öffnet die Karte mit allen Zeilen als Rahmen, gewählte
+Zeilen werden ins Feld übernommen (`src/kern/feld.ts`).
+
+Im Browser wird jedes Foto einmal neu gezeichnet (Drehung fest eingerechnet, höchstens
+2000 px), damit Anzeige, Erkennung und Ausschnitte dieselben Koordinaten haben.
+
+Galerie: Der Browser darf nicht in die Galerie schreiben. Das Foto wird heruntergeladen, die
+Galerie zeigt den Ordner Download mit an.
+
 ## Feldzuordnung (Regeln)
 
 `src/kern/parser.ts`, Reihenfolge:
@@ -95,7 +109,11 @@ abspecken, wenn die Größe stört.
    mit dem Teil der Mail vor dem @. Titel (Dr., Prof., Dipl.-Ing.) und Namenszusätze (von, van)
    werden getrennt
 7. Position (Geschäftsführer, Leiter, Vertrieb …) und Abteilung
-8. Alles Übrige in die Notiz, der Rohtext bleibt einsehbar
+8. Alles Übrige in die Notiz, der Rohtext bleibt einsehbar. Kurze Splitter ohne Ziffern
+   (bis 4 Buchstaben, z. B. Logo in Sperrschrift) bleiben weg
+
+Vorher korrigiert: typische Lesefehler, die auf Karten nie echt sind („Großhande!l“,
+„Wwww.“, freistehende Anführungszeichen aus Logos).
 
 Das Ergebnis ist ein Vorschlag. Die Korrekturmaske kommt immer.
 

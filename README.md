@@ -18,16 +18,22 @@ Erster Gerätetest: [docs/TESTPLAN-PWA.md](docs/TESTPLAN-PWA.md) (Android-App: [
 
 ## Ablauf in der Web-App
 
-1. **Karte fotografieren** (öffnet die Kamera) oder Bild auswählen
-2. QR-Code mit vCard wird zuerst gelesen. Sonst Texterkennung (tesseract.js), danach
-   ordnen feste Regeln die Felder zu (`src/kern/parser.ts`)
-3. Felder prüfen und korrigieren. Haken „Kartenbild als Profilbild speichern“ (an): Das
-   Foto der Karte geht als Profilbild in die vCard (quadratisch, 360 px, rund 10 KB)
+1. **Karte fotografieren** oder **Bilder auswählen** (mehrere auf einmal möglich). Weitere
+   Karten lassen sich dazulegen, sie werden im Hintergrund nacheinander gelesen
+2. QR-Code mit vCard wird zuerst gelesen. Sonst Texterkennung (tesseract.js) mit Lage jedes
+   Worts, danach ordnen feste Regeln die Felder zu (`src/kern/parser.ts`)
+3. Prüfen, Karte für Karte. **Neben jedem Feld steht der Bildausschnitt**, aus dem es
+   erkannt wurde. Antippen öffnet die Karte mit allen erkannten Zeilen als Rahmen: Zeile(n)
+   antippen, „Übernehmen“. Name und „PLZ Ort“ werden dabei zerlegt
 4. Speichern:
-   - **Als Kontakt speichern (vCard)**: iPhone zeigt sofort die Kontaktvorschau,
-     „Neuen Kontakt erstellen“. Android lädt die Datei, Tipp auf „Öffnen“, App wählen
-   - Teilen-Menü und direkter Aufruf des Kontakt-Editors gingen im Gerätetest nicht
-     (20.10.2026) und sind entfernt
+   - eine Karte: **Als Kontakt speichern (vCard)**
+   - mehrere: je Karte „Geprüft, nächste Karte“, am Ende **alle in einer Datei**; Samsung
+     Kontakte importiert sie in einem Rutsch. Einzelne Karten können auch sofort gespeichert
+     oder übersprungen werden
+   - Haken **Kartenbild als Profilbild**: die ganze Karte passt in den runden Zuschnitt
+   - Haken **Kartenfoto in der Galerie ablegen**: lädt das Foto in den Ordner Download, den
+     die Galerie mit anzeigt
+   - Weiter: Download antippen, Kontakte, ins Outlook-Konto importieren
 
 Kamera, Texterkennung und QR laufen im Browser auf dem Handy. Die nötigen Dateien
 (Texterkennung, QR) liefert der eigene Server mit aus. Der Service Worker hält sie im

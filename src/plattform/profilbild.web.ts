@@ -1,11 +1,12 @@
-// Profilbild aus dem Kartenfoto. Quadratisch, weil Kontakte-Apps das Bild rund oder
-// quadratisch zuschneiden: Die ganze Karte wird mittig auf weißen Grund gesetzt, damit
-// nichts abgeschnitten wird. Klein gehalten (360 px, JPEG), damit die vCard handlich bleibt
-// und der Abgleich mit Exchange das Bild nicht ablehnt.
-const KANTE = 360;
+// Profilbild aus dem Kartenfoto. Kontakte-Apps schneiden das Bild rund zu. Damit die ganze
+// Karte lesbar bleibt, passt sie mit ihren Ecken in den Kreis (Diagonale = Durchmesser) und
+// sitzt mittig auf weißem Grund.
+import { Bild } from './bild';
 
-export async function profilbildAus(bildUri: string): Promise<string | undefined> {
-  const bild = await createImageBitmap(await (await fetch(bildUri)).blob());
+const KANTE = 600;
+
+export async function profilbildAus(bild: Bild): Promise<string | undefined> {
+  const quelle = await createImageBitmap(await (await fetch(bild.uri)).blob());
   try {
     const leinwand = document.createElement('canvas');
     leinwand.width = KANTE;
@@ -14,12 +15,12 @@ export async function profilbildAus(bildUri: string): Promise<string | undefined
     if (!g) return undefined;
     g.fillStyle = '#ffffff';
     g.fillRect(0, 0, KANTE, KANTE);
-    const faktor = Math.min(KANTE / bild.width, KANTE / bild.height);
-    const b = bild.width * faktor;
-    const h = bild.height * faktor;
-    g.drawImage(bild, (KANTE - b) / 2, (KANTE - h) / 2, b, h);
-    return leinwand.toDataURL('image/jpeg', 0.8).split(',')[1];
+    const faktor = (KANTE * 0.97) / Math.hypot(quelle.width, quelle.height);
+    const b = quelle.width * faktor;
+    const h = quelle.height * faktor;
+    g.drawImage(quelle, (KANTE - b) / 2, (KANTE - h) / 2, b, h);
+    return leinwand.toDataURL('image/jpeg', 0.85).split(',')[1];
   } finally {
-    bild.close();
+    quelle.close();
   }
 }
