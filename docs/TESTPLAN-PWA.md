@@ -32,7 +32,8 @@ Je ein Android-Handy (Chrome) und, wenn zur Hand, ein iPhone (Safari).
 |---|---|
 | A2 | echte Karte: alles richtig bis auf den Namen (Logo statt Person, weil Sammeladresse firma@firma.de). Regel korrigiert, danach richtig |
 | A5 | Download geht. „Öffnen mit“: CamCard, ChatGPT, Dateimanager, Kontakte (Google), Kontakte (Samsung), Termux. **Keine Outlook-App** |
-| A6 | offen: Bietet die Kontakte-App beim Speichern das Outlook-/Exchange-Konto an? |
+| A6 | **geht.** Kontakte (Samsung) > „Importieren von Kontakten in“ bietet „Outlook (Standard)“ an. Ziel erreicht: Download antippen, Kontakte, Importieren |
+| A9 | offen: Kontakt am PC in Outlook prüfen, Umlaute |
 | A7 | geht nicht, Knopf entfernt |
 | A8 | geht nicht, Knopf entfernt |
 

@@ -30,8 +30,12 @@ Stand 20.10.2026. Entschieden mit Henning im Gespräch.
 | (entfernt) Kontakt-Editor | `intent:`-Adresse mit denselben Feldern wie in der App | Gerätetest 20.10.2026 (Android, Edge): ging nicht. Chromium-Browser starten über `intent:` nur Apps, die Aufrufe aus dem Browser erlauben |
 
 Gerätetest 20.10.2026 (Android, Edge): Download geht, „Öffnen mit“ bietet Kontakte (Google
-und Samsung) an, **Outlook nicht**. In Outlook kommt der Kontakt also nur über die
-Kontakte-App, wenn dort das Exchange-/Outlook-Konto als Speicherort wählbar ist.
+und Samsung) an, **Outlook nicht**. In Outlook kommt der Kontakt über die
+Kontakte-App: Samsung Kontakte bietet beim Import „Outlook (Standard)“ an. **Damit ist das Ziel
+erreicht**, die Android-App ist für diesen Zweck nicht nötig.
+
+Ablauf im Alltag: Karte fotografieren, prüfen, „Als Kontakt speichern“, Download-Meldung
+antippen, Kontakte (bei „Öffnen mit“ einmal „Immer“ wählen), „Importieren“ ins Outlook-Konto.
 
 ### Android-App (ruht)
 
