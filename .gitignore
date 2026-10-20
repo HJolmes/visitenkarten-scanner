@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Web-OCR-Dateien, erzeugt von scripts/web-ocr-dateien.mjs
+public/tesseract/

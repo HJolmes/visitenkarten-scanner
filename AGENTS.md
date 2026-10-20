@@ -1,3 +1,12 @@
+# Hinweise für Claude / Agenten
+
+Erst `README.md` und `docs/KONZEPT.md` lesen. Sprache in Code-Bezeichnern, Kommentaren und
+Doku: Deutsch, wie im Bestand.
+
+- Vorgaben nicht aufweichen: offline, keine KI, kein Cloud-Dienst, kein Connector
+- Keine echten Visitenkarten oder Personendaten ins Repo, Testfälle erfinden
+- Vor dem Abschluss: `npm test` und `npm run typecheck`
+
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
 ## Expo has changed — do not trust your training data
